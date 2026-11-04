@@ -2,6 +2,7 @@ package fr.efrei.residence;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Le parc de logements de la résidence.
@@ -29,30 +30,24 @@ public class Residence {
         logements.clear();
         for (String ligne : CATALOGUE) {
             String[] t = ligne.split(";");
-            String type = t[0];
+            
             String numero = t[1];
             double surface = Double.parseDouble(t[2]);
             int etage = Integer.parseInt(t[3]);
             boolean meuble = Boolean.parseBoolean(t[4]);
             int param = Integer.parseInt(t[5]);
-            Logement l;
-            switch (type) {
-                case "STUDIO":
-                    l = new Studio(numero, surface, etage, meuble);
-                    break;
-                case "T1":
-                    l = new T1(numero, surface, etage, meuble);
-                    break;
-                case "T2":
-                    l = new T2(numero, surface, etage, meuble, param);
-                    break;
-                case "COLOCATION":
-                    l = new Colocation(numero, surface, etage, meuble, param);
-                    break;
-                default:
-                    System.out.println("Type inconnu ignoré : " + type);
-                    continue;
-            }
+            Optional<TypeLogement> type = TypeLogement.depuis(t[0]);
+if (type.isEmpty()) {
+    System.out.println("Type inconnu ignoré : " + t[0]);
+    continue;
+}
+Logement l = switch (type.get()) {
+    case STUDIO -> new Studio(numero, surface, etage, meuble);
+    case T1 -> new T1(numero, surface, etage, meuble);
+    case T2 -> new T2(numero, surface, etage, meuble, param);
+    case COLOCATION -> new Colocation(numero, surface, etage, meuble, param);
+};
+
             logements.add(l);
         }
     }
