@@ -1,53 +1,82 @@
 package fr.efrei.residence;
 
-public abstract class Logement implements ILogement {
+import java.util.ArrayList;
+import java.util.List;
 
-    protected String numero;
-    protected TypeLogement type;
-    protected double surface;
-    protected int etage;
-    protected boolean meuble;
-    protected Etudiant occupant;
+/**
+ * Base commune des logements : tous accueillent de 1 à {@code places} occupants de la même manière.
+ */
+public abstract class Logement implements FicheLogement, Hebergement, Exterieur {
+
+    protected final String numero;
+    private final TypeLogement type;
     private final TarifLogement tarif;
+    private final double surface;
+    private final int etage;
+    private final boolean meuble;
+    private final int places;
+    private final List<Etudiant> occupants = new ArrayList<>();
 
-    public Logement(String numero, TypeLogement type, TarifLogement tarif, double surface, int etage, boolean meuble) {
+    protected Logement(String numero, TypeLogement type, TarifLogement tarif, double surface, int etage,
+                       boolean meuble, int places) {
         this.numero = numero;
         this.type = type;
         this.tarif = tarif;
         this.surface = surface;
         this.etage = etage;
         this.meuble = meuble;
+        this.places = places;
     }
 
-    public String getNumero() { return numero; }
-    public TypeLogement getType() { return type; }
+    @Override public String getNumero() { return numero; }
+    @Override public TypeLogement getType() { return type; }
     public TarifLogement getTarif() { return tarif; }
-    public double getSurface() { return surface; }
-    public int getEtage() { return etage; }
-    public boolean isMeuble() { return meuble; }
-    public Etudiant getOccupant() { return occupant; }
+    @Override public double getSurface() { return surface; }
+    @Override public int getEtage() { return etage; }
+    @Override public boolean isMeuble() { return meuble; }
 
-    public boolean estLibre() {
-        return occupant == null;
-    }
-
-    public int nombreOccupants() {
-        return occupant == null ? 0 : 1;
-    }
-
+    @Override
     public boolean estAccessiblePMR() {
         // seul le bâtiment A a un ascenseur
         return etage == 0 || numero.startsWith("A");
     }
 
-    public void loger(Etudiant e) {
-        if (occupant != null) {
-            throw new IllegalStateException("Logement " + numero + " déjà occupé");
-        }
-        occupant = e;
+    @Override
+    public int getNombrePlaces() {
+        return places;
     }
 
+    @Override
+    public int nombreOccupants() {
+        return occupants.size();
+    }
+
+    @Override
+    public boolean estLibre() {
+        return occupants.size() < places;
+    }
+
+    @Override
+    public void accueillir(Etudiant e) {
+        if (!estLibre()) {
+            throw new IllegalStateException("Logement " + numero + " complet");
+        }
+        occupants.add(e);
+    }
+
+    @Override
     public void liberer(Etudiant e) {
-        occupant = null;
+        occupants.remove(e);
+    }
+
+    /** Par défaut, rien à faire au départ d'un occupant. */
+    @Override
+    public void apresDepart() {
+    }
+
+    /** Par défaut, pas de balcon : 0 m² est une vraie valeur, pas une exception. */
+    @Override
+    public double getSurfaceBalcon() {
+        return 0;
     }
 }

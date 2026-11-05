@@ -66,8 +66,8 @@ public class NouveauSystemeAdapter implements SystemeResidence {
 
     @Override
     public boolean ajouterLogement(DemandeLogement d) {
-        int param = d.type() == TypeLogement.COLOCATION ? d.places() : d.surfaceBalcon();
-        return parc.ajouterLogement(d.type().name(), d.numero(), d.surface(), d.etage(), d.meuble(), param) != null;
+        return parc.ajouterLogement(d.type().name(), d.numero(), d.surface(), d.etage(), d.meuble(),
+                d.places(), d.surfaceBalcon()) != null;
     }
 
     @Override
@@ -76,14 +76,8 @@ public class NouveauSystemeAdapter implements SystemeResidence {
         if (l == null) {
             return Optional.empty();
         }
-        int occupants;
-        if (l instanceof Colocation) {
-            occupants = l.getColocataires().size();
-        } else {
-            occupants = l.estLibre() ? 0 : 1;
-        }
         return Optional.of(new EtatLogement(l.getNumero(), TypeLogement.valueOf(l.getType().name()), l.getNombrePlaces(),
-                occupants, l.estAccessiblePMR()));
+                l.nombreOccupants(), l.estAccessiblePMR()));
     }
 
     @Override

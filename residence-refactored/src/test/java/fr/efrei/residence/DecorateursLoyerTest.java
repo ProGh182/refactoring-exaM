@@ -16,7 +16,7 @@ class DecorateursLoyerTest {
 
     @Test
     void loyer_de_base_vient_du_tarif_du_logement() {
-        Logement t1 = FabriqueLogements.creer(TypeLogement.T1, "B105", 30, 1, false, 0);
+        Logement t1 = FabriqueLogements.creer(TypeLogement.T1, "B105", 30, 1, false, 0, 0);
         assertEquals(440.0, new LoyerDeBase(t1).montant(), CENTIME);
     }
 
@@ -65,21 +65,21 @@ class DecorateursLoyerTest {
 
     @Test
     void l_assembleur_applique_le_menage_avant_les_prix_fixes() {
-        Logement t1 = FabriqueLogements.creer(TypeLogement.T1, "B105", 30, 1, false, 0);
+        Logement t1 = FabriqueLogements.creer(TypeLogement.T1, "B105", 30, 1, false, 0, 0);
         Set<Option> options = EnumSet.of(Option.PARKING, Option.MENAGE);
         assertEquals(520.2, assembleur.assembler(t1, options).montant(), CENTIME);
     }
 
     @Test
     void l_assembleur_utilise_les_prix_de_la_colocation() {
-        Logement colocation = FabriqueLogements.creer(TypeLogement.COLOCATION, "B301", 80, 3, true, 4);
+        Logement colocation = FabriqueLogements.creer(TypeLogement.COLOCATION, "B301", 80, 3, true, 4, 0);
         Set<Option> options = EnumSet.of(Option.MENAGE, Option.FIBRE);
         assertEquals(263.12, assembleur.assembler(colocation, options).montant(), CENTIME);
     }
 
     @Test
     void l_assembleur_applique_meuble_puis_rez_de_chaussee() {
-        Logement studio = FabriqueLogements.creer(TypeLogement.STUDIO, "A001", 26, 0, true, 0);
+        Logement studio = FabriqueLogements.creer(TypeLogement.STUDIO, "A001", 26, 0, true, 0, 0);
         assertEquals(397.67, assembleur.assembler(studio, EnumSet.noneOf(Option.class)).montant(), CENTIME);
     }
 }

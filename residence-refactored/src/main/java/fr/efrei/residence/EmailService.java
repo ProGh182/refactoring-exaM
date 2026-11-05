@@ -22,17 +22,13 @@ public class EmailService implements CanalNotification {
                 "Bonjour " + etudiant.getPrenom() + ", il reste " + Utils.euros(solde) + " à régler sur le bail " + idBail + ".");
     }
 
-    private boolean envoyerEmail(String destinataire, String sujet, String corps) {
-        try {
-            if (!Utils.emailValide(destinataire)) {
-                throw new Exception("Adresse invalide");
-            }
-            System.out.println("[EMAIL] " + EXPEDITEUR + " -> " + destinataire + " | " + sujet);
-            System.out.println("        " + corps);
-            journal.enregistrer(new Envoi(Canal.EMAIL, destinataire, sujet, 0));
-            return true;
-        } catch (Exception e) {
-            return false;
+    /** Une adresse invalide n'envoie rien, sans exception. */
+    private void envoyerEmail(String destinataire, String sujet, String corps) {
+        if (!Utils.emailValide(destinataire)) {
+            return;
         }
+        System.out.println("[EMAIL] " + EXPEDITEUR + " -> " + destinataire + " | " + sujet);
+        System.out.println("        " + corps);
+        journal.enregistrer(new Envoi(Canal.EMAIL, destinataire, sujet, 0));
     }
 }

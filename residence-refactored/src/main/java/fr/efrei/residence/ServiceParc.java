@@ -15,9 +15,11 @@ public class ServiceParc {
 
     /**
      * @param type  texte du type ; un type inconnu est refusé
-     * @param param nombre de places d'une colocation ou surface du balcon d'un T2
+     * @param places        nombre de places, utilisé seulement pour une colocation
+     * @param surfaceBalcon surface du balcon en m², utilisée seulement pour un T2
      */
-    public Logement ajouterLogement(String type, String numero, double surface, int etage, boolean meuble, int param) {
+    public Logement ajouterLogement(String type, String numero, double surface, int etage, boolean meuble,
+                                    int places, double surfaceBalcon) {
         if (residence.trouver(numero) != null) {
             System.out.println("Logement " + numero + " existe déjà");
             return null;
@@ -27,7 +29,7 @@ public class ServiceParc {
             System.out.println("Type de logement inconnu : " + type);
             return null;
         }
-        Logement l = FabriqueLogements.creer(typeLogement.get(), numero, surface, etage, meuble, param);
+        Logement l = FabriqueLogements.creer(typeLogement.get(), numero, surface, etage, meuble, places, surfaceBalcon);
         residence.ajouter(l);
         System.out.println("Logement ajouté : " + numero + " (" + type + ")");
         return l;

@@ -41,7 +41,8 @@ public class Residence {
                 System.out.println("Type inconnu ignoré : " + t[0]);
                 continue;
             }
-            logements.add(FabriqueLogements.creer(type.get(), numero, surface, etage, meuble, param));
+            // la colonne PARAM sert de nombre de places ou de surface de balcon : la fabrique prend celle qui la concerne
+            logements.add(FabriqueLogements.creer(type.get(), numero, surface, etage, meuble, param, param));
         }
     }
 

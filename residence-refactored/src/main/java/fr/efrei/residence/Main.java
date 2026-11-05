@@ -22,8 +22,8 @@ public class Main {
         GenerateurQuittance quittances = new GenerateurQuittance();
         GenerateurRapport rapport = new GenerateurRapport(residence, db, journal);
 
-        parc.ajouterLogement("STUDIO", "C002", 16, 0, false, 0);
-        parc.ajouterLogement("DUPLEX", "C003", 60, 1, true, 0);
+        parc.ajouterLogement("STUDIO", "C002", 16, 0, false, 0, 0);
+        parc.ajouterLogement("DUPLEX", "C003", 60, 1, true, 0, 0);
 
         System.out.println();
         Etudiant alice = inscription.inscrire("Martin", "Alice", "alice.martin@mail.fr", "0601020304", null,

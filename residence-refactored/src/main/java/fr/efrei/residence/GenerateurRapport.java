@@ -31,10 +31,7 @@ public class GenerateurRapport {
             occupantsParType.merge(l.getType(), l.nombreOccupants(), Integer::sum);
             total += l.getNombrePlaces();
             occupes += l.nombreOccupants();
-            try {
-                surfaceBalcons += l.getSurfaceBalcon();
-            } catch (UnsupportedOperationException ex) {
-            }
+            surfaceBalcons += l.getSurfaceBalcon();
         }
         for (TypeLogement type : TypeLogement.values()) {
             r += type.getLibelleRapport() + occupantsParType.getOrDefault(type, 0) + "/"
