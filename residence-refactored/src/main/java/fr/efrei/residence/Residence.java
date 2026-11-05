@@ -1,6 +1,7 @@
 package fr.efrei.residence;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,10 +25,10 @@ public class Residence {
             "COLOCATION;C001;63;0;true;3",
     };
 
-    public static List<Logement> logements = new ArrayList<Logement>();
+    private final List<Logement> logements = new ArrayList<>();
 
-    public static void initialiser() {
-        logements.clear();
+    /** Crée le parc initial à partir du catalogue. */
+    public Residence() {
         for (String ligne : CATALOGUE) {
             String[] t = ligne.split(";");
             String numero = t[1];
@@ -44,10 +45,18 @@ public class Residence {
         }
     }
 
-    public static Logement trouver(String numero) {
+    public void ajouter(Logement l) {
+        logements.add(l);
+    }
+
+    public Logement trouver(String numero) {
         for (Logement l : logements) {
             if (l.getNumero().equals(numero)) return l;
         }
         return null;
+    }
+
+    public List<Logement> logements() {
+        return Collections.unmodifiableList(logements);
     }
 }

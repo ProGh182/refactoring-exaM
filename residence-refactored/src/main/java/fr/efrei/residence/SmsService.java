@@ -1,16 +1,16 @@
 package fr.efrei.residence;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class SmsService implements CanalNotification {
 
     private static final int LONGUEUR_MAX = 160;
     private static final int LONGUEUR_MIN_NUMERO = 10;
     private static final String SUITE = "...";
 
-    public static int compteurSms = 0;
-    public static List<String[]> journal = new ArrayList<String[]>();
+    private final JournalNotifications journal;
+
+    public SmsService(JournalNotifications journal) {
+        this.journal = journal;
+    }
 
     @Override
     public void envoyer(Etudiant etudiant, String sujet, String message) {
@@ -30,8 +30,7 @@ public class SmsService implements CanalNotification {
         if (message.length() > LONGUEUR_MAX) {
             message = message.substring(0, LONGUEUR_MAX - SUITE.length()) + SUITE;
         }
-        compteurSms++;
-        journal.add(new String[]{numero, message});
+        journal.enregistrer(new Envoi(Canal.SMS, numero, message, 0));
         System.out.println("[SMS] -> " + numero + " : " + message);
     }
 }

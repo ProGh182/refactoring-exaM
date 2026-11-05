@@ -15,7 +15,6 @@ import fr.efrei.residence.contrat.TypeLogement;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -23,34 +22,44 @@ import java.util.OptionalDouble;
 import java.util.Set;
 
 /**
- * Branche le code historique sur les tests de contrat.
- * <p>
- * Tout le « bricolage » nécessaire pour tester l'ancien code (état statique à vider,
- * conversion des codes {@code String}, booléens d'options…) est confiné ici.
+ * Branche le nouveau code sur les tests de contrat. Cette classe ne contient que de la traduction.
  */
 public class NouveauSystemeAdapter implements SystemeResidence {
 
-    private GestionResidence gestion;
+    private Database db;
+    private Residence residence;
+    private JournalNotifications journal;
+    private CalculateurLoyer calculateur;
+    private ServiceParc parc;
+    private ServiceInscription inscription;
+    private ServiceAttribution attribution;
+    private ServiceBail baux;
+    private ServiceRelance relance;
+    private GenerateurQuittance quittances;
+    private GenerateurRapport rapport;
 
+    /** Réinitialiser = construire un nouveau graphe d'objets. */
     @Override
     public void reinitialiser() {
-        Database.getInstance();
-        Database.etudiants.clear();
-        Database.baux.clear();
-        EmailService.journal.clear();
-        SmsService.journal.clear();
-        CourrierService.journal.clear();
-        SmsService.compteurSms = 0;
-        CourrierService.totalAffranchissement = 0;
-        Etudiant.compteur = 0;
-        GestionResidence.compteurBail = 0;
-        Residence.initialiser();
-        gestion = new GestionResidence();
+        db = new Database();
+        residence = new Residence();
+        journal = new JournalNotifications();
+        GenerateurIdentifiants identifiants = new GenerateurIdentifiants();
+        ServiceNotification notification = new ServiceNotification(new FabriqueCanaux(journal));
+        calculateur = new CalculateurLoyer(new AssembleurLoyer());
+
+        parc = new ServiceParc(residence);
+        inscription = new ServiceInscription(new ValidateurInscription(db), db, identifiants);
+        attribution = new ServiceAttribution(residence, calculateur, db, identifiants, notification);
+        baux = new ServiceBail(db, notification);
+        relance = new ServiceRelance(db, notification);
+        quittances = new GenerateurQuittance();
+        rapport = new GenerateurRapport(residence, db, journal);
     }
 
     @Override
     public Optional<String> inscrire(DemandeInscription d) {
-        Etudiant e = gestion.inscrireEtudiant(d.nom(), d.prenom(), d.email(), d.telephone(), d.adresse(),
+        Etudiant e = inscription.inscrire(d.nom(), d.prenom(), d.email(), d.telephone(), d.adresse(),
                 profil(d.profil()), d.echelonBourse(), d.ressourcesMensuelles(), d.pmr(), canal(d.canalPrefere()));
         return Optional.ofNullable(e).map(Etudiant::getId);
     }
@@ -58,12 +67,12 @@ public class NouveauSystemeAdapter implements SystemeResidence {
     @Override
     public boolean ajouterLogement(DemandeLogement d) {
         int param = d.type() == TypeLogement.COLOCATION ? d.places() : d.surfaceBalcon();
-        return gestion.ajouterLogement(d.type().name(), d.numero(), d.surface(), d.etage(), d.meuble(), param) != null;
+        return parc.ajouterLogement(d.type().name(), d.numero(), d.surface(), d.etage(), d.meuble(), param) != null;
     }
 
     @Override
     public Optional<EtatLogement> logement(String numero) {
-        Logement l = Residence.trouver(numero);
+        Logement l = residence.trouver(numero);
         if (l == null) {
             return Optional.empty();
         }
@@ -79,27 +88,27 @@ public class NouveauSystemeAdapter implements SystemeResidence {
 
     @Override
     public OptionalDouble devisLoyer(DemandeDevis d) {
-        Logement l = Residence.trouver(d.numeroLogement());
+        Logement l = residence.trouver(d.numeroLogement());
         if (l == null) {
             return OptionalDouble.empty();
         }
-        return OptionalDouble.of(new CalculateurLoyer().calculerLoyer(l,
+        return OptionalDouble.of(calculateur.calculerLoyer(l,
                 FabriqueProfils.pour(profil(d.profil()), d.echelonBourse()), options(d.options())));
     }
 
     @Override
     public Optional<String> attribuer(DemandeAttribution d) {
-        Etudiant e = etudiant(d.refEtudiant());
+        Etudiant e = db.trouverEtudiantParId(d.refEtudiant());
         if (e == null) {
             return Optional.empty();
         }
-        Bail b = gestion.attribuerLogement(e, type(d.type()), options(d.options()), d.dateSignature());
+        Bail b = attribution.attribuerLogement(e, type(d.type()), options(d.options()), d.dateSignature());
         return Optional.ofNullable(b).map(Bail::getId);
     }
 
     @Override
     public Optional<EtatBail> consulter(String idBail) {
-        Bail b = Database.baux.get(idBail);
+        Bail b = db.trouverBail(idBail);
         if (b == null) {
             return Optional.empty();
         }
@@ -110,57 +119,49 @@ public class NouveauSystemeAdapter implements SystemeResidence {
 
     @Override
     public boolean entrer(String idBail, LocalDate date) {
-        return gestion.entrerDansLesLieux(idBail, date);
+        return baux.entrerDansLesLieux(idBail, date);
     }
 
     @Override
     public boolean payer(String idBail, YearMonth mois, LocalDate date, double montant) {
-        return gestion.payerLoyer(idBail, mois.toString(), date, montant);
+        return baux.payerLoyer(idBail, mois.toString(), date, montant);
     }
 
     @Override
     public boolean donnerPreavis(String idBail, LocalDate date) {
-        return gestion.donnerPreavis(idBail, date);
+        return baux.donnerPreavis(idBail, date);
     }
 
     @Override
     public boolean sortir(String idBail, LocalDate date, double retenuesDegats) {
-        return gestion.sortir(idBail, date, retenuesDegats);
+        return baux.sortir(idBail, date, retenuesDegats);
     }
 
     @Override
     public boolean annuler(String idBail) {
-        return gestion.annulerBail(idBail);
+        return baux.annulerBail(idBail);
     }
 
     @Override
     public Optional<String> quittance(String idBail, YearMonth mois) {
-        return Optional.ofNullable(Database.baux.get(idBail)).map(b -> b.genererQuittance(mois.toString()));
+        return Optional.ofNullable(db.trouverBail(idBail)).map(b -> quittances.generer(b, mois.toString()));
     }
 
     @Override
     public void relancerImpayes() {
-        gestion.relancerImpayes();
+        relance.relancerImpayes();
     }
 
     @Override
     public String rapport() {
-        return gestion.genererRapport();
+        return rapport.generer();
     }
 
     @Override
     public List<Notification> notifications() {
-        List<Notification> notifications = new ArrayList<>();
-        for (String[] email : EmailService.journal) {
-            notifications.add(new Notification(Canal.EMAIL, email[0], email[1]));
-        }
-        for (String[] sms : SmsService.journal) {
-            notifications.add(new Notification(Canal.SMS, sms[0], sms[1]));
-        }
-        for (String[] courrier : CourrierService.journal) {
-            notifications.add(new Notification(Canal.COURRIER, courrier[0], courrier[1]));
-        }
-        return notifications;
+        return journal.parCanal().stream()
+                .map(envoi -> new Notification(Canal.valueOf(envoi.canal().name()), envoi.destinataire(), envoi.objet()))
+                .toList();
     }
 
     private static Profil profil(fr.efrei.residence.contrat.Profil p) {
@@ -181,12 +182,5 @@ public class NouveauSystemeAdapter implements SystemeResidence {
             traduites.add(fr.efrei.residence.Option.valueOf(option.name()));
         }
         return traduites;
-    }
-
-    private static Etudiant etudiant(String ref) {
-        for (Etudiant e : Database.etudiants.values()) {
-            if (e.getId().equals(ref)) return e;
-        }
-        return null;
     }
 }

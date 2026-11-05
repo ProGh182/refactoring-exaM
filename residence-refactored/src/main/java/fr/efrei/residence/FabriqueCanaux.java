@@ -3,16 +3,23 @@ package fr.efrei.residence;
 /**
  * Seul endroit qui crée les services de notification.
  */
-public final class FabriqueCanaux {
+public class FabriqueCanaux {
 
-    private FabriqueCanaux() {
+    private final CanalNotification email;
+    private final CanalNotification sms;
+    private final CanalNotification courrier;
+
+    public FabriqueCanaux(JournalNotifications journal) {
+        this.email = new EmailService(journal);
+        this.sms = new SmsService(journal);
+        this.courrier = new CourrierService(journal);
     }
 
-    public static CanalNotification pour(Canal canal) {
+    public CanalNotification pour(Canal canal) {
         return switch (canal) {
-            case EMAIL -> new EmailService();
-            case SMS -> new SmsService();
-            case COURRIER -> new CourrierService();
+            case EMAIL -> email;
+            case SMS -> sms;
+            case COURRIER -> courrier;
         };
     }
 }
