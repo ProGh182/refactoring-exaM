@@ -2,7 +2,10 @@ package fr.efrei.residence;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Bail {
 
@@ -19,18 +22,15 @@ public class Bail {
     private double caution;
     private double fraisDossier;
 
-    public boolean parking;
-    public boolean menage;
-    public boolean laverie;
-    public boolean fibre;
-    public boolean assurance;
+    private final Set<Option> options = EnumSet.noneOf(Option.class); // EnumSet : ordre de déclaration de l'enum
 
     public List<Paiement> paiements = new ArrayList<Paiement>();
     public double soldeDu = 0;
     public double retenues = 0;
     public double cautionRestituee = 0;
 
-    public Bail(String id, Etudiant etudiant, Logement logement, LocalDate dateSignature) {
+    public Bail(String id, Etudiant etudiant, Logement logement, Set<Option> options, LocalDate dateSignature) {
+        this.options.addAll(options);
         this.id = id;
         this.etudiant = etudiant;
         this.logement = logement;
@@ -59,14 +59,8 @@ public class Bail {
     public void setFraisDossier(double f) { this.fraisDossier = f; }
 
     public String listerOptions() {
-        String s = "";
-        if (menage) s = s + "ménage, ";
-        if (parking) s = s + "parking, ";
-        if (laverie) s = s + "laverie, ";
-        if (fibre) s = s + "fibre, ";
-        if (assurance) s = s + "assurance, ";
-        if (s.length() == 0) return "aucune";
-        return s.substring(0, s.length() - 2);
+        if (options.isEmpty()) return "aucune";
+        return options.stream().map(Option::getLibelle).collect(Collectors.joining(", "));
     }
 
     /**

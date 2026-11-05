@@ -16,6 +16,7 @@ import fr.efrei.residence.contrat.TypeLogement;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
@@ -82,10 +83,8 @@ public class NouveauSystemeAdapter implements SystemeResidence {
         if (l == null) {
             return OptionalDouble.empty();
         }
-        Set<Option> o = d.options();
-        return OptionalDouble.of(new CalculateurLoyer().calculerLoyer(l, FabriqueProfils.pour(profil(d.profil()), d.echelonBourse()),
-                o.contains(Option.PARKING), o.contains(Option.MENAGE), o.contains(Option.LAVERIE),
-                o.contains(Option.FIBRE), o.contains(Option.ASSURANCE)));
+        return OptionalDouble.of(new CalculateurLoyer().calculerLoyer(l,
+                FabriqueProfils.pour(profil(d.profil()), d.echelonBourse()), options(d.options())));
     }
 
     @Override
@@ -94,9 +93,7 @@ public class NouveauSystemeAdapter implements SystemeResidence {
         if (e == null) {
             return Optional.empty();
         }
-        Set<Option> o = d.options();
-        Bail b = gestion.attribuerLogement(e, type(d.type()), o.contains(Option.PARKING), o.contains(Option.MENAGE),
-                o.contains(Option.LAVERIE), o.contains(Option.FIBRE), o.contains(Option.ASSURANCE), d.dateSignature());
+        Bail b = gestion.attribuerLogement(e, type(d.type()), options(d.options()), d.dateSignature());
         return Optional.ofNullable(b).map(Bail::getId);
     }
 
@@ -176,6 +173,14 @@ public class NouveauSystemeAdapter implements SystemeResidence {
 
     private static fr.efrei.residence.TypeLogement type(TypeLogement t) {
         return fr.efrei.residence.TypeLogement.valueOf(t.name());
+    }
+
+    private static Set<fr.efrei.residence.Option> options(Set<Option> options) {
+        Set<fr.efrei.residence.Option> traduites = EnumSet.noneOf(fr.efrei.residence.Option.class);
+        for (Option option : options) {
+            traduites.add(fr.efrei.residence.Option.valueOf(option.name()));
+        }
+        return traduites;
     }
 
     private static Etudiant etudiant(String ref) {
