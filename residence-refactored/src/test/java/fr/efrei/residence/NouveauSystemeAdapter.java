@@ -154,6 +154,7 @@ public class NouveauSystemeAdapter implements SystemeResidence {
     @Override
     public List<Notification> notifications() {
         return journal.parCanal().stream()
+                .filter(envoi -> envoi.canal() != fr.efrei.residence.Canal.PUSH) // canal inconnu du contrat
                 .map(envoi -> new Notification(Canal.valueOf(envoi.canal().name()), envoi.destinataire(), envoi.objet()))
                 .toList();
     }

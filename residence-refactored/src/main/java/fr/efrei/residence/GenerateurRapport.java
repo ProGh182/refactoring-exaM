@@ -34,6 +34,7 @@ public class GenerateurRapport {
             surfaceBalcons += l.getSurfaceBalcon();
         }
         for (TypeLogement type : TypeLogement.values()) {
+            if (!placesParType.containsKey(type)) continue; // un type absent du parc n'a pas de ligne
             r += type.getLibelleRapport() + occupantsParType.getOrDefault(type, 0) + "/"
                     + placesParType.getOrDefault(type, 0) + type.getUniteRapport() + "\n";
         }

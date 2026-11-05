@@ -21,6 +21,7 @@ public class AssembleurLoyer {
         if (options.contains(Option.LAVERIE)) loyer = new OptionLaverie(loyer);
         if (options.contains(Option.FIBRE)) loyer = new OptionFibre(loyer, tarif.prixFibre());
         if (options.contains(Option.ASSURANCE)) loyer = new OptionAssurance(loyer);
+        if (options.contains(Option.VELO)) loyer = new OptionLocalVelo(loyer);
 
         return loyer;
     }

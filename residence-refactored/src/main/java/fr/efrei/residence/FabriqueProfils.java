@@ -17,6 +17,7 @@ public final class FabriqueProfils {
             case BOURSIER -> new ProfilBoursier(echelon);
             case ALTERNANT -> new ProfilAlternant();
             case INTERNATIONAL -> new ProfilInternational();
+            case SPORTIF -> new ProfilSportif();
         };
     }
 }

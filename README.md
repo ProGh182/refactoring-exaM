@@ -299,15 +299,15 @@ dans `DIAGNOSTIC.md` combien de fichiers existants vous avez dû modifier.
 
 ## Grille d'auto-évaluation
 
-| Critère | ✔ |
-|---|---|
-| 101 tests de contrat verts | |
-| L'adaptateur ne contient que de la traduction | |
-| Aucun code `String` pour les types, profils, canaux, statuts et options | |
-| Logements et canaux créés par des fabriques | |
-| Règles par profil (et loyer de base par type) en Strategy | |
-| Couches du loyer en Decorator, assemblées en un seul endroit | |
-| `GestionResidence` découpée, chaque classe se décrit en une phrase sans « et » | |
-| Aucun singleton, aucun `static` modifiable, dépendances injectées | |
-| Aucun `instanceof`, aucune `UnsupportedOperationException`, aucun `catch` vide | |
-| Extension `DUPLEX` / local vélo / `SPORTIF` / `PUSH` sans modifier les classes existantes (hors assemblage) | |
+| Critère | ✔ | Preuve |
+|---|---|---|
+| 101 tests de contrat verts | ✔ | `mvn install` : 101 tests verts dans `residence-legacy` et 136 dans `residence-refactored` (101 de contrat + 35 unitaires) |
+| L'adaptateur ne contient que de la traduction | ✔ | `NouveauSystemeAdapter` construit le graphe et convertit les types du contrat ; il ne filtre que les envois `PUSH`, inconnus du contrat |
+| Aucun code `String` pour les types, profils, canaux, statuts et options | ✔ | Enums `TypeLogement`, `Profil`, `Canal`, `StatutBail`, `Option` ; aucun `equals("...")`. Seul `ServiceParc.ajouterLogement` reçoit le type en texte, converti par `TypeLogement.depuis()` pour refuser un type inconnu |
+| Logements et canaux créés par des fabriques | ✔ | `FabriqueLogements`, `FabriqueCanaux` (et `FabriqueProfils`) : aucun `new Studio`, `new SmsService`… ailleurs |
+| Règles par profil (et loyer de base par type) en Strategy | ✔ | `StrategieProfil` et ses 5 profils ; `TarifLogement` et ses 5 tarifs |
+| Couches du loyer en Decorator, assemblées en un seul endroit | ✔ | 8 décorateurs de `DecorateurLoyer`, assemblés dans `AssembleurLoyer` ; chacun a son test unitaire |
+| `GestionResidence` découpée, chaque classe se décrit en une phrase sans « et » | ✔ | `ValidateurInscription`, `ServiceInscription`, `ServiceParc`, `ServiceAttribution`, `ServiceBail`, `ServiceNotification`, `ServiceRelance`, `GenerateurRapport`, `GenerateurQuittance` |
+| Aucun singleton, aucun `static` modifiable, dépendances injectées | ✔ | Injection par constructeur ; seuls `Main` et l'adaptateur construisent le graphe. Limite : certains services reçoivent encore des classes concrètes (`Residence`, `CalculateurLoyer`) plutôt que des interfaces |
+| Aucun `instanceof`, aucune `UnsupportedOperationException`, aucun `catch` vide | ✔ | Aucune occurrence dans `residence-refactored/src`, code et tests compris |
+| Extension `DUPLEX` / local vélo / `SPORTIF` / `PUSH` sans modifier les classes existantes (hors assemblage) | ✔ (presque) | 5 nouvelles classes et 4 classes de test ; aucun service modifié. Fichiers existants modifiés : 4 enums, 3 fabriques, l'assembleur, l'adaptateur, plus **une ligne de `GenerateurRapport`** hors assemblage (détail dans `DIAGNOSTIC.md`) |

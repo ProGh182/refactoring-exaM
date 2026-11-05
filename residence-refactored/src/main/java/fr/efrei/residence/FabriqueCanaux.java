@@ -8,11 +8,13 @@ public class FabriqueCanaux {
     private final CanalNotification email;
     private final CanalNotification sms;
     private final CanalNotification courrier;
+    private final CanalNotification push;
 
     public FabriqueCanaux(JournalNotifications journal) {
         this.email = new EmailService(journal);
         this.sms = new SmsService(journal);
         this.courrier = new CourrierService(journal);
+        this.push = new PushService(journal);
     }
 
     public CanalNotification pour(Canal canal) {
@@ -20,6 +22,7 @@ public class FabriqueCanaux {
             case EMAIL -> email;
             case SMS -> sms;
             case COURRIER -> courrier;
+            case PUSH -> push;
         };
     }
 }
