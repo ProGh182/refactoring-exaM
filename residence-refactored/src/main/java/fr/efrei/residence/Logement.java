@@ -8,10 +8,12 @@ public abstract class Logement implements ILogement {
     protected int etage;
     protected boolean meuble;
     protected Etudiant occupant;
+    private final TarifLogement tarif;
 
-    public Logement(String numero, TypeLogement type, double surface, int etage, boolean meuble) {
+    public Logement(String numero, TypeLogement type, TarifLogement tarif, double surface, int etage, boolean meuble) {
         this.numero = numero;
         this.type = type;
+        this.tarif = tarif;
         this.surface = surface;
         this.etage = etage;
         this.meuble = meuble;
@@ -19,6 +21,7 @@ public abstract class Logement implements ILogement {
 
     public String getNumero() { return numero; }
     public TypeLogement getType() { return type; }
+    public TarifLogement getTarif() { return tarif; }
     public double getSurface() { return surface; }
     public int getEtage() { return etage; }
     public boolean isMeuble() { return meuble; }
@@ -26,6 +29,10 @@ public abstract class Logement implements ILogement {
 
     public boolean estLibre() {
         return occupant == null;
+    }
+
+    public int nombreOccupants() {
+        return occupant == null ? 0 : 1;
     }
 
     public boolean estAccessiblePMR() {

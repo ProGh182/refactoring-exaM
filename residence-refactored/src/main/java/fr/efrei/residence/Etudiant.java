@@ -11,13 +11,13 @@ public class Etudiant {
     private String telephone;
     private String adresse;
     private Profil profil; // STANDARD, BOURSIER, ALTERNANT, INTERNATIONAL
-    private int echelonBourse; // 0 à 7, seulement pour les boursiers
+    private StrategieProfil strategie;
     private double ressourcesMensuelles;
     private boolean pmr;
     private Canal canalPrefere; // EMAIL, SMS, COURRIER
 
     public Etudiant(String nom, String prenom, String email, String telephone, String adresse, Profil profil,
-                    int echelonBourse, double ressourcesMensuelles, boolean pmr, Canal canalPrefere) {
+                    StrategieProfil strategie, double ressourcesMensuelles, boolean pmr, Canal canalPrefere) {
         compteur++;
         this.id = "ETU-" + compteur;
         this.nom = nom;
@@ -26,7 +26,7 @@ public class Etudiant {
         this.telephone = telephone;
         this.adresse = adresse;
         this.profil = profil;
-        this.echelonBourse = echelonBourse;
+        this.strategie = strategie;
         this.ressourcesMensuelles = ressourcesMensuelles;
         this.pmr = pmr;
         this.canalPrefere = canalPrefere;
@@ -40,8 +40,7 @@ public class Etudiant {
     public String getTelephone() { return telephone; }
     public String getAdresse() { return adresse; }
     public Profil getProfil() { return profil; }
-    public void setProfil(Profil profil) { this.profil = profil; }
-    public int getEchelonBourse() { return echelonBourse; }
+    public StrategieProfil getStrategie() { return strategie; }
     public double getRessourcesMensuelles() { return ressourcesMensuelles; }
     public boolean isPmr() { return pmr; }
     public Canal getCanalPrefere() { return canalPrefere; }

@@ -9,7 +9,7 @@ public class Colocation extends Logement {
     private List<Etudiant> colocataires = new ArrayList<Etudiant>();
 
     public Colocation(String numero, double surface, int etage, boolean meuble, int places) {
-        super(numero, TypeLogement.COLOCATION, surface, etage, meuble);
+        super(numero, TypeLogement.COLOCATION, new TarifColocation(), surface, etage, meuble);
         this.places = places;
     }
 
@@ -26,6 +26,11 @@ public class Colocation extends Logement {
     @Override
     public boolean estLibre() {
         return colocataires.size() < places;
+    }
+
+    @Override
+    public int nombreOccupants() {
+        return colocataires.size();
     }
 
     @Override

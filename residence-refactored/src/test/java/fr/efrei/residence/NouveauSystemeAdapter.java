@@ -83,7 +83,7 @@ public class NouveauSystemeAdapter implements SystemeResidence {
             return OptionalDouble.empty();
         }
         Set<Option> o = d.options();
-        return OptionalDouble.of(new CalculateurLoyer().calculerLoyer(l, profil(d.profil()), d.echelonBourse(),
+        return OptionalDouble.of(new CalculateurLoyer().calculerLoyer(l, FabriqueProfils.pour(profil(d.profil()), d.echelonBourse()),
                 o.contains(Option.PARKING), o.contains(Option.MENAGE), o.contains(Option.LAVERIE),
                 o.contains(Option.FIBRE), o.contains(Option.ASSURANCE)));
     }
