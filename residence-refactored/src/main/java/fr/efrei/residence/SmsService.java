@@ -3,7 +3,7 @@ package fr.efrei.residence;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SmsService {
+public class SmsService implements CanalNotification {
 
     private static final int LONGUEUR_MAX = 160;
     private static final int LONGUEUR_MIN_NUMERO = 10;
@@ -12,7 +12,17 @@ public class SmsService {
     public static int compteurSms = 0;
     public static List<String[]> journal = new ArrayList<String[]>();
 
-    public void envoyerSms(String numero, String message) {
+    @Override
+    public void envoyer(Etudiant etudiant, String sujet, String message) {
+        envoyerSms(etudiant.getTelephone(), sujet + " - " + message);
+    }
+
+    @Override
+    public void relancer(Etudiant etudiant, String idBail, double solde) {
+        envoyerSms(etudiant.getTelephone(), "Campus Vert : " + Utils.euros(solde) + " impayés sur " + idBail);
+    }
+
+    private void envoyerSms(String numero, String message) {
         if (numero == null || numero.length() < LONGUEUR_MIN_NUMERO) {
             System.out.println("[SMS] numéro invalide : " + numero);
             return;

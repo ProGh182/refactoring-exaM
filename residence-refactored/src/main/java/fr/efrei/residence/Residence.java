@@ -30,25 +30,17 @@ public class Residence {
         logements.clear();
         for (String ligne : CATALOGUE) {
             String[] t = ligne.split(";");
-            
             String numero = t[1];
             double surface = Double.parseDouble(t[2]);
             int etage = Integer.parseInt(t[3]);
             boolean meuble = Boolean.parseBoolean(t[4]);
             int param = Integer.parseInt(t[5]);
             Optional<TypeLogement> type = TypeLogement.depuis(t[0]);
-if (type.isEmpty()) {
-    System.out.println("Type inconnu ignoré : " + t[0]);
-    continue;
-}
-Logement l = switch (type.get()) {
-    case STUDIO -> new Studio(numero, surface, etage, meuble);
-    case T1 -> new T1(numero, surface, etage, meuble);
-    case T2 -> new T2(numero, surface, etage, meuble, param);
-    case COLOCATION -> new Colocation(numero, surface, etage, meuble, param);
-};
-
-            logements.add(l);
+            if (type.isEmpty()) {
+                System.out.println("Type inconnu ignoré : " + t[0]);
+                continue;
+            }
+            logements.add(FabriqueLogements.creer(type.get(), numero, surface, etage, meuble, param));
         }
     }
 
